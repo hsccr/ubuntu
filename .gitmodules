@@ -1,0 +1,6 @@
+[submodule "libfprint"]
+	path = libfprint
+	url = git@github.com:nvrsw/libfprint.git
+[submodule "packages"]
+	path = packages
+	url = git@github.com:nvrsw/packages.git
