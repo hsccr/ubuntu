@@ -114,6 +114,43 @@ build_libfprint()
   cp ${PKGDIR}/build/*.deb ${PKGDIR}/deb/${UBUNTU_CODENAME}
 }
 
+build_libcurl4()
+{
+  rm -fr ${PKGDIR}/build/*
+  cd ${PKGDIR}/build
+
+  sudo apt --assume-yes build-dep libcurl4
+  apt --assume-yes source libcurl4
+
+  src_dir=$(find -name "curl-*" -type d)
+  if [ -z "$src_dir" ]; then
+    ECHO "not found curl"
+    exit 1
+  fi
+
+  cd ${src_dir}
+  [ ! -d "debian/patches" ] && mkdir -p debian/patches
+
+  for patch in ${PKGDIR}/curl/*.patch; do
+    echo "${patch} debian/patches"
+    cp ${patch} debian/patches
+
+    basename=$(basename $patch)
+    echo ${basename} >> debian/patches/series
+  done
+
+  # apply patches
+  quilt push -a
+
+  # update changelog
+  dch -b -U -i --distribution stable "build package with patches"
+
+  # build package
+  debuild -b -us -uc
+
+  cp ${PKGDIR}/build/*.deb ${PKGDIR}/deb/${UBUNTU_CODENAME}
+}
+
 packages()
 {
   UBUNTU_CODENAME=$(lsb_release -c | awk '{ print $2 }')
@@ -132,7 +169,8 @@ packages()
 
   case $UBUNTU_CODENAME in
     # Ubuntu 18.04 (bionic)
-    "bionic");;
+    "bionic")
+      build_libcurl4;;
     # Ubuntu 19.04 (disco)
     # Ubuntu 20.04 (focal)
     "disco" | "focal")

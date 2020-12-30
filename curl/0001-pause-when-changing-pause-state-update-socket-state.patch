@@ -1,0 +1,76 @@
+From 2404aa080e1cc62634b44091f58737d2c618e361 Mon Sep 17 00:00:00 2001
+From: Daniel Stenberg <daniel@haxx.se>
+Date: Fri, 16 Mar 2018 12:03:52 +0100
+Subject: [PATCH] pause: when changing pause state, update socket state
+
+Especially unpausing a transfer might have to move the socket back to the
+"currently used sockets" hash to get monitored. Otherwise it would never get
+any more data and get stuck. Easily triggered with pausing using the
+multi_socket API.
+
+Reported-by: Philip Prindeville
+Bug: https://curl.haxx.se/mail/lib-2018-03/0048.html
+Fixes #2393
+Closes #2391
+---
+ lib/easy.c    | 4 ++++
+ lib/multi.c   | 6 ++++++
+ lib/multiif.h | 3 ++-
+ 3 files changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/lib/easy.c b/lib/easy.c
+index 64c647be2..fa34c3827 100644
+--- a/lib/easy.c
++++ b/lib/easy.c
+@@ -1099,6 +1099,10 @@ CURLcode curl_easy_pause(struct Curl_easy *data, int action)
+       (KEEP_RECV_PAUSE|KEEP_SEND_PAUSE)) )
+     Curl_expire(data, 0, EXPIRE_RUN_NOW); /* get this handle going again */
+ 
++  /* This transfer may have been moved in or out of the bundle, update
++     the corresponding socket callback, if used */
++  Curl_updatesocket(data);
++
+   return result;
+ }
+ 
+diff --git a/lib/multi.c b/lib/multi.c
+index 69df90288..2f139ab37 100644
+--- a/lib/multi.c
++++ b/lib/multi.c
+@@ -2421,6 +2421,12 @@ static void singlesocket(struct Curl_multi *multi,
+   data->numsocks = num;
+ }
+ 
++void Curl_updatesocket(struct Curl_easy *data)
++{
++  singlesocket(data->multi, data);
++}
++
++
+ /*
+  * Curl_multi_closed()
+  *
+diff --git a/lib/multiif.h b/lib/multiif.h
+index a988bfd4a..b9c722aed 100644
+--- a/lib/multiif.h
++++ b/lib/multiif.h
+@@ -7,7 +7,7 @@
+  *                            | (__| |_| |  _ <| |___
+  *                             \___|\___/|_| \_\_____|
+  *
+- * Copyright (C) 1998 - 2017, Daniel Stenberg, <daniel@haxx.se>, et al.
++ * Copyright (C) 1998 - 2018, Daniel Stenberg, <daniel@haxx.se>, et al.
+  *
+  * This software is licensed as described in the file COPYING, which
+  * you should have received as part of this distribution. The terms
+@@ -26,6 +26,7 @@
+  * Prototypes for library-wide functions provided by multi.c
+  */
+ 
++void Curl_updatesocket(struct Curl_easy *data);
+ void Curl_expire(struct Curl_easy *data, time_t milli, expire_id);
+ void Curl_expire_clear(struct Curl_easy *data);
+ void Curl_expire_done(struct Curl_easy *data, expire_id id);
+-- 
+2.29.2
+
