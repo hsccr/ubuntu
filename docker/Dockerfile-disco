@@ -12,58 +12,18 @@ RUN sed -i '/^#\sdeb-src /s/^#//' "/etc/apt/sources.list"
 RUN apt-get update
 
 RUN apt-get install -y \
-  autoconf-archive \
-  bison \
   build-essential \
   cmake \
   curl \
   dh-make \
   devscripts \
   dpkg-sig \
-  flex \
   git \
-  va-driver-all \
-  intltool \
-  libasound2-dev \
-  libbsd-dev \
-  libbz2-dev \
-  libcanberra-gtk-module \
-  libcurl4-openssl-dev \
-#  libfprint-dev \
-  libgtk2.0-bin \
-  libgtk2.0-dev \
-  libgudev-1.0-dev \
-  libhidapi-dev \
-  libjpeg-dev \
-  libjson-c-dev \
-  librsvg2-dev \
-  libsdl1.2-dev \
-  libssh-dev \
-  libudev-dev \
-  libuv1-dev \
-  libva-dev \
-  libva-drm2 \
-  libva-wayland2 \
-  libva-x11-2 \
-  libxv-dev \
-  locales \
   meson \
   ninja-build \
-  nodejs \
-  openssh-client \
-  ruby \
-  ruby-rmagick \
+  sudo \
   ubuntu-dev-tools \
-  unixodbc-dev \
-  vim \
-  xsltproc \
-  yasm
-
-RUN rm -rf /var/lib/apt/lists/*
-
-RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
-
-ENV LANG en_US.utf8
+  vim
 
 ARG USER
 ARG UID
