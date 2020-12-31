@@ -95,7 +95,14 @@ build_libfprint()
   cd ${PKGDIR}/build
 
   # install dependency
-  sudo apt --assume-yes install debhelper gtk-doc-tools libglib2.0-doc libnss3-dev libpixman-1-dev libusb-1.0-0-dev libxv-dev
+  sudo apt --assume-yes install debhelper \
+                                gtk-doc-tools \
+                                libglib2.0-doc \
+                                libnss3-dev \
+                                libpixman-1-dev \
+                                libusb-1.0-0-dev \
+                                libxv-dev \
+                                libglib2.0-dev
 
   cp -r ${PKGDIR}/libfprint ${PKGDIR}/build
 
@@ -120,6 +127,7 @@ build_libcurl4()
   cd ${PKGDIR}/build
 
   sudo apt --assume-yes build-dep libcurl4
+  sudo apt --assume-yes install libcurl4-openssl-dev
   apt --assume-yes source libcurl4
 
   src_dir=$(find -name "curl-*" -type d)
