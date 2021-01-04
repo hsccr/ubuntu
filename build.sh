@@ -152,7 +152,10 @@ build_libcurl4()
     fi
   done
 
-  # apply patches
+  # remove all patches
+  quilt pop -a -f
+
+  # apply all patches
   quilt push -a
 
   # update changelog
