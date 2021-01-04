@@ -144,8 +144,7 @@ build_libcurl4()
     cp ${patch} debian/patches
 
     basename=$(basename $patch)
-    if [[ -f "debian/patches/series" ]]
-    then
+    if [ -f "debian/patches/series" ]; then
       # do not add patches last line
       sed -i '1i\'"${basename}" debian/patches/series
     else
